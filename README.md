@@ -1,297 +1,161 @@
-MICROSOFT 365 PASSWORD MANAGEMENT
-===================================
+# Microsoft 365 Password Management
 
-This section contains Microsoft Graph PowerShell scripts for checking,
-reporting, and managing Microsoft 365 / Microsoft Entra ID password
-expiration settings.
+PowerShell automation scripts for managing and monitoring Microsoft 365 and Microsoft Entra ID password policies using Microsoft Graph.
 
-===========================================================
-REPOSITORY STRUCTURE
-===========================================================
+## Overview
 
-06-Password-Management/
-|
-|-- README.md
-|
-|-- 01-Users/
-|   |-- Get-UserPasswordPolicy.ps1
-|   |-- Export-UserPasswordPolicyReport.ps1
-|   |-- Set-UserPasswordNeverExpire.ps1
-|   |-- Set-UserPasswordExpire.ps1
-|
-|-- 02-Domain/
-    |-- Get-DomainPasswordPolicy.ps1
+This repository provides practical PowerShell scripts for common Microsoft 365 password management tasks, including:
 
+- Checking user password expiration settings
+- Generating password policy reports
+- Disabling password expiration for a user
+- Enabling password expiration for a user
+- Reviewing domain password policy settings
 
-===========================================================
-STEP 1 - PREREQUISITES
-===========================================================
+## Requirements
 
-Before running the scripts, make sure:
+- PowerShell 5.1 or PowerShell 7+
+- Microsoft Graph PowerShell SDK
+- Appropriate Microsoft Graph permissions
+- Microsoft 365 / Microsoft Entra ID administrative access
 
-- PowerShell 5.1 or PowerShell 7+ is installed.
-- Microsoft Graph PowerShell SDK is installed.
-- You have the required Microsoft Graph permissions.
-- You have appropriate Microsoft 365 / Microsoft Entra ID access.
+## Microsoft Graph Installation
 
-===========================================================
-STEP 2 - INSTALL MICROSOFT GRAPH
-===========================================================
+Install the Microsoft Graph PowerShell SDK:
 
-Run PowerShell as your normal user and execute:
-
+```powershell
 Install-Module Microsoft.Graph -Scope CurrentUser -Repository PSGallery -Force
+```
 
 Verify the installation:
 
+```powershell
 Get-InstalledModule Microsoft.Graph
+```
 
-
-===========================================================
-STEP 3 - CONNECT TO MICROSOFT GRAPH
-===========================================================
+## Authentication
 
 Connect to Microsoft Graph:
 
+```powershell
 Connect-MgGraph -Scopes "User.Read.All","Domain.Read.All","User.ReadWrite.All"
+```
 
-A Microsoft sign-in window may appear.
+Verify the connection:
 
-After authentication, verify the connection:
-
+```powershell
 Get-MgContext
+```
 
-NOTE:
-Use only the permissions required for the specific script.
-Do not request unnecessary permissions.
+## Scripts
 
+### User Password Policy
 
-===========================================================
-STEP 4 - GET USER PASSWORD POLICY
-===========================================================
+**Get-UserPasswordPolicy.ps1**
 
-Script:
-
-01-Users/Get-UserPasswordPolicy.ps1
-
-Purpose:
 Checks whether password expiration is disabled for users.
 
-Run:
-
+```powershell
 .\Get-UserPasswordPolicy.ps1
+```
 
-The output includes:
+### Password Policy Report
 
-- UserPrincipalName
-- PasswordNeverExpires
+**Export-UserPasswordPolicyReport.ps1**
 
-A value of True means the user's password expiration is disabled.
+Exports user password expiration status to a CSV report.
 
-
-===========================================================
-STEP 5 - EXPORT USER PASSWORD POLICY REPORT
-===========================================================
-
-Script:
-
-01-Users/Export-UserPasswordPolicyReport.ps1
-
-Purpose:
-Exports the password expiration status of all users to a CSV file.
-
-Run:
-
+```powershell
 .\Export-UserPasswordPolicyReport.ps1
+```
 
-The report will be created in the same folder as the script:
+> The generated CSV may contain user information. Do not upload customer or production reports to a public repository.
 
-PasswordPolicyReport.csv
+### Disable Password Expiration
 
-IMPORTANT:
-The CSV report may contain user information. Do not upload
-the generated CSV file to a public GitHub repository.
+**Set-UserPasswordNeverExpire.ps1**
 
+Disables password expiration for a specific user.
 
-===========================================================
-STEP 6 - SET USER PASSWORD TO NEVER EXPIRE
-===========================================================
-
-Script:
-
-01-Users/Set-UserPasswordNeverExpire.ps1
-
-Purpose:
-Disables password expiration for one specific user.
-
-Run:
-
+```powershell
 .\Set-UserPasswordNeverExpire.ps1
+```
 
-The script will ask:
-
-Enter User Principal Name
+The script will ask for the user's UPN.
 
 Example:
 
+```text
 user@contoso.com
+```
 
-IMPORTANT:
-This is a configuration change. Review your organization's
-security policy before disabling password expiration.
+### Enable Password Expiration
 
-Do not use this setting unless there is a valid business or
-technical requirement.
+**Set-UserPasswordExpire.ps1**
 
+Enables password expiration for a specific user.
 
-===========================================================
-STEP 7 - ENABLE USER PASSWORD EXPIRATION
-===========================================================
-
-Script:
-
-01-Users/Set-UserPasswordExpire.ps1
-
-Purpose:
-Removes the DisablePasswordExpiration setting from one user.
-
-Run:
-
+```powershell
 .\Set-UserPasswordExpire.ps1
+```
 
-Enter the user's UPN when prompted.
+### Domain Password Policy
 
-Example:
+**Get-DomainPasswordPolicy.ps1**
 
-user@contoso.com
+Displays the password notification window and password validity period configured for a domain.
 
-
-===========================================================
-STEP 8 - CHECK DOMAIN PASSWORD POLICY
-===========================================================
-
-Script:
-
-02-Domain/Get-DomainPasswordPolicy.ps1
-
-Purpose:
-Displays the password notification window and password validity
-period configured for a domain.
-
-Run:
-
+```powershell
 .\Get-DomainPasswordPolicy.ps1
+```
 
-Enter your domain name when prompted.
+## Required Permissions
 
-Example:
+The required permissions depend on the operation being performed.
 
-contoso.com
+| Permission | Purpose |
+|---|---|
+| User.Read.All | Read user information |
+| User.ReadWrite.All | Update user properties |
+| Domain.Read.All | Read domain information |
 
+Always verify the permissions required by the specific Microsoft Graph cmdlet before using the scripts in production.
 
-===========================================================
-REQUIRED PERMISSIONS
-===========================================================
+## Recommended Usage
 
-The permissions required can vary depending on the cmdlet and
-operation.
+Before applying password policy changes:
 
-Common permissions used by these scripts include:
+1. Test the script with a test account.
+2. Review the current configuration.
+3. Apply the required change.
+4. Verify the result.
+5. Document the change.
+6. Apply the change to production only after successful testing.
 
-User.Read.All
-    Read user information.
+## Security
 
-User.ReadWrite.All
-    Required for user configuration changes in scenarios where
-    the cmdlet requires write access.
+Never store sensitive information in this repository.
 
-Domain.Read.All
-    Read domain information.
-
-IMPORTANT:
-Always verify the exact required permission for the Microsoft Graph
-cmdlet before granting permissions in production.
-
-
-===========================================================
-SECURITY BEST PRACTICES
-===========================================================
-
-DO NOT upload any of the following to GitHub:
+Do not upload:
 
 - Passwords
-- Access Tokens
-- Refresh Tokens
-- Client Secrets
-- Private Keys
-- Certificates containing private keys
-- Customer user lists
-- Customer CSV reports
-- Customer confidential information
+- Access tokens
+- Refresh tokens
+- Client secrets
+- Private keys
+- Customer data
+- Production CSV reports
 
-Never hard-code a password in a PowerShell script.
+Never hard-code passwords inside PowerShell scripts.
 
-BAD EXAMPLE:
+## Disclaimer
 
-$password = "Password123!"
+These scripts are intended for Microsoft 365 administration, automation, learning, and troubleshooting purposes.
 
-Do not use this approach.
+Always test administrative changes in a controlled environment before using them in production.
 
+## Microsoft Documentation
 
-===========================================================
-RECOMMENDED TESTING PROCESS
-===========================================================
+[Microsoft Graph PowerShell](https://learn.microsoft.com/powershell/microsoftgraph/)
 
-Before using any configuration-change script in production:
-
-1. Test with a test user.
-2. Confirm the current password policy.
-3. Apply the change.
-4. Verify the result.
-5. Confirm there is no unexpected impact.
-6. Document the change.
-7. Only then consider production use.
-
-
-===========================================================
-TROUBLESHOOTING
-===========================================================
-
-If Connect-MgGraph is not recognized:
-
-Install or import Microsoft Graph:
-
-Install-Module Microsoft.Graph -Scope CurrentUser -Force
-
-Then try:
-
-Import-Module Microsoft.Graph
-
-Connect again:
-
-Connect-MgGraph
-
-
-If you need to identify the required permissions for a cmdlet:
-
-Find-MgGraphCommand -Command "Get-MgUser"
-
-You can replace the command name with the Graph cmdlet
-you are investigating.
-
-
-===========================================================
-DISCLAIMER
-===========================================================
-
-These scripts are provided for Microsoft 365 administration,
-automation, learning, and troubleshooting purposes.
-
-Always review permissions and test administrative changes in a
-controlled environment before using them in production.
-
-Microsoft Graph documentation:
-
-https://learn.microsoft.com/powershell/microsoftgraph/
-
-END OF README
+[Microsoft Graph API](https://learn.microsoft.com/graph/)
